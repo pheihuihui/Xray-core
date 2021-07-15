@@ -81,7 +81,11 @@ type service struct {
 
 func (s *service) Register(server *grpc.Server) {
 	common.Must(s.v.RequireFeatures(func(router routing.Router, stats stats.Manager) {
-		rs := NewRoutingServer(router, nil)
+		chn, err := stats.RegisterChannel("routingChannel")
+		if err != nil {
+			return
+		}
+		rs := NewRoutingServer(router, chn)
 		RegisterRoutingServiceServer(server, rs)
 
 		// For compatibility purposes
